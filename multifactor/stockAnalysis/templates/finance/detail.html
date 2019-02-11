@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8" />
+	<script src="https://cdn.bootcss.com/angular.js/1.6.3/angular.min.js"></script>
+	<script src="https://cdn.bootcss.com/angular.js/1.5.0-beta.0/angular-sanitize.min.js"></script>
+
+	<!-- <script src="http://cdn.bootcss.com/angular-ui-bootstrap/1.1.2/ui-bootstrap-tpls.js"></script> -->
+	<link href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.css" rel="stylesheet" />
+	<script src="https://cdn.bootcss.com/angular-ui-bootstrap/2.5.0/ui-bootstrap-tpls.js"></script>
+
+	<style type="text/css">
+		#extract {
+			font: 12px verdana, arial, sans-serif;
+			/* 设置文字大小和字体样式 */
+		}
+
+		#extract,
+		#extract li {
+			list-style: none;
+			/* 将默认的列表符号去掉 */
+			padding: 0;
+			/* 将默认的内边距去掉 */
+			margin: 0;
+			/* 将默认的外边距去掉 */
+		}
+	</style>
+</head>
+
+<body style="text-align:center">
+	<div ng-app="myApp" ng-controller="myCtrl">
+		<div style="margin:0 auto;">
+			<p ><font color="#FF0000" size="3">{{hint}}</font></p>
+			<p ng-model="name">证券：{{data.name}}</p>
+			<p ng-model="industry">行业：{{data.industry}}</p>
+			<p ng-model="final_total_score">诊断总得分：<font color="#FF0000" size="5">{{data.final_total_score|number:0}}</font>
+			</p>
+		</div>
+
+		<div style="width:100%; margin: auto;">
+			<p>估值历史曲线：当前估值位于历史{{data.rankS*100|number:2}}%分位</p>
+			<!-- <img src="/static/000651.jpg" alt="Smiley face" width="80%" height="80%"> -->
+			<img src="{{data.valueurl}}" alt="Smiley face" width="80%" height="70%">
+		</div>
+
+		<div style="width:500px; margin: auto;margin-bottom: 100px;">
+			<!-- <a href="javascript:window.history.go(-1)" style="text-align:left">返回</a> -->
+			<div style="text-align:left">
+				<p> 估值：{{data.pe|number:2}}
+					&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;行业中位值：{{data.peMedian|number:2}}
+					<uib-progressbar value="rank_score_pe" type="info">{{rank_score_pe|number:0}}分</uib-progressbar>
+				</p>
+				<p>估值：当前估值位于历史{{data.rankS*100|number:2}}%分位
+					<uib-progressbar value="rank_score_rankS" type="info">{{rank_score_rankS|number:0}}分</uib-progressbar>
+				</p>
+				<!--
+				<p >赚钱能力：<uib-progressbar value="rank_score_roe_stable" type="success" max="100" animate="true" title="test:"> {{rank_score_roe_stable}}%</uib-progressbar>
+				</p>-->
+
+				<p>竞争力：<uib-progressbar value="power_score" type="info" max="100" animate="true"> {{power_score|number:0}}分</uib-progressbar>
+				</p>
+
+				<p>赚钱能力：{{data.jqjzcsyl|number:2}}
+					&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;行业中位值：{{data.jqjzcsylMedian|number:2}}
+					<uib-progressbar value="rank_score_jqjzcsyl" type="info">{{rank_score_jqjzcsyl|number:0}}分</uib-progressbar>
+				</p>
+
+				<p>成长性：{{data.kfjlrtbzz|number:2}}
+					&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;行业中位值：{{data.kfjlrtbzzMedian|number:2}}
+					<uib-progressbar value="rank_score_kfjlrtbzz" type="info">{{rank_score_kfjlrtbzz|number:0}}分</uib-progressbar>
+				</p>
+
+				<p>财务杠杆：{{data.ldbl|number:2}}
+					&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;行业中位值：{{data.ldblMedian|number:2}}
+					<uib-progressbar value="rank_score_ldbl" type="info">{{rank_score_ldbl|number:0}}分</uib-progressbar>
+				</p>
+
+				<p>运营效率：{{data.zzczzy|number:2}}
+					&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;行业中位值：{{data.zzczzyMedian|number:2}}
+					<uib-progressbar value="rank_score_zzczzy" type="info">{{rank_score_zzczzy|number:0}}分</uib-progressbar>
+				</p>
+				<p>现金流：{{data.jyxjlyysr|number:2}}
+					&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;行业中位值：{{data.jyxjlyysrMedian|number:2}}
+					<uib-progressbar value="rank_score_jyxjlyysr" type="info">{{rank_score_jyxjlyysr|number:0}}分</uib-progressbar>
+				</p>
+			</div>
+
+
+		</div>
+
+	</div>
+	<script th:inline="javascript">
+		var app = angular.module('myApp', ['ngSanitize', 'ui.bootstrap']);
+		app.controller('myCtrl', function ($scope, $http, $location, $sce) {
+			scode = "[[stockcode]]"
+	        $scope.hint = "正在加载..."
+			// $scope.rank_score_pe = 10
+			$http({
+				method: 'GET',
+				url: "/finance/stockscore/" + scode
+			}).then(function successCallback(response) {
+				$scope.data = response.data[0];
+				$scope.power_score = $scope.data.power_score
+				$scope.rank_score_roe_stable = $scope.data.rank_score_roe_stable
+				$scope.rank_score_pe = $scope.data.rank_score_pe
+				$scope.rank_score_rankS = $scope.data.rank_score_rankS
+
+				$scope.rank_score_jqjzcsyl = $scope.data.rank_score_jqjzcsyl
+				$scope.rank_score_kfjlrtbzz = $scope.data.rank_score_kfjlrtbzz
+				$scope.rank_score_ldbl = $scope.data.rank_score_ldbl
+				$scope.rank_score_zzczzy = $scope.data.rank_score_zzczzy
+				$scope.rank_score_jyxjlyysr = $scope.data.rank_score_jyxjlyysr
+				$scope.hint = ""
+
+			}, function errorCallback(response) {
+				// 请求失败执行代码
+				$scope.hint = "加载失败"
+				$scope.result2 = response.data;
+			});
+
+
+		});
+
+	</script>
+
+</body>
+
+</html>

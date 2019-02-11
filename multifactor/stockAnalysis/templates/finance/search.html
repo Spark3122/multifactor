@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<script src="https://cdn.bootcss.com/angular.js/1.6.3/angular.min.js"></script>
+<!-- 最新版本的 Bootstrap 核心 CSS 文件 -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+<style type="text/css">
+#menu {
+	font: 12px verdana, arial, sans-serif; /* 设置文字大小和字体样式 */
+}
+th {
+  cursor: pointer;
+}
+#menu, #menu li {
+	list-style: none; /* 将默认的列表符号去掉 */
+	padding: 0; /* 将默认的内边距去掉 */
+	margin: 0; /* 将默认的外边距去掉 */
+	float: left; /* 往左浮动 */
+}
+</style>
+</head>
+<body>
+
+
+	<div ng-app="myApp" ng-controller="myCtrl"
+		style="padding: 30px; width: 100%;">
+		<div style="float: right; right: 30px; top: 30px;">
+			<!-- <a ng-click='hotNews()' href="javascript: void(0);">证券头条</a> -->
+			   <!-- <a <a href="searchRp"
+				target="_blank">股票估值计算（自由现金流折现）</a> &nbsp;&nbsp;&nbsp;
+				
+				href="saveArticle" target="_blank">上传文章</a>
+				 &nbsp;&nbsp;&nbsp; <a
+				ng-click='myUpdated()' href="javascript: void(0);">查看我的上传</a> -->
+			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		</div>
+		<!-- width: 100%; position: relative;right: 30px;top: 30px; -->
+		<div>
+			<input ng-model="name" placeholder="请输入证券codes进行查询搜索, ';' 分隔多个（ 000858 ; 000651）"
+				style="width: 500px; height: 30px; marginLeft: 30px; marginTop: 50px" />
+			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			<button ng-click='search()' style="height: 30px; marginLeft: 60px;">查询</button>
+			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+			<!-- <input name="agree"
+				type="checkbox" value="只查询投教知识" ng-click="sub()" ng-checked="lesson">只查询投教知识
+			</input> -->
+
+		</div>
+		<h5>细分行业:</h5>
+		<div style="height: 80px; margin: 10px">
+			<ul id="menu">
+				<li ng-repeat="x in commonWords" style="height: 15px; margin: 5px">
+					<a ng-click='query(x.industry)' href="javascript: void(0);">{{x.industry}}</a>
+				</li>
+			</ul>
+		</div>
+		
+		<div style="font-weight: blod;">搜索结果：{{hint}}</div>
+		显示所有数据（点击表头可进行排序）: <input type="checkbox" ng-model="myVar" ng-init="myVar = false">
+		<!-- <div style="font-weight: blod;">{{result2}}</div> -->
+		<!-- <div style="font-weight: blod;"><img src="/static/000651.jpg" alt="Smiley face" width="80%" height="400px"></div> -->
+		<div style="font-weight: blod;">
+		
+
+			<table class="table table-border"  >
+				<thead>
+				  <tr>
+					<th>排名</th>
+					<th ng-click="col='name';desc=!desc">证券</th>
+					<th >行业</th>
+
+					<th ng-click="col='final_total_score';desc=!desc">0.总得分</th>
+					<th ng-click="col='power_score';desc=!desc">1.竞争力总得分</th>
+					<th ng-click="col='rank_score_roe_stable';desc=!desc" >1.1赚钱稳定性得分</th>
+					<th ng-click="col='roe_stable';desc=!desc" ng-if="myVar">赚钱稳定性</th>
+					<th ng-click="col='rank_score_roe_gmean';desc=!desc">1.2赚钱得分（平均）</th>
+					<th ng-click="col='roe_gmean';desc=!desc" ng-if="myVar">赚钱（平均）</th>
+					<th ng-click="col='rank_score_in_growth_stable';desc=!desc">1.3成长稳定性得分</th>
+					<th ng-click="col='in_growth_stable';desc=!desc" ng-if="myVar" >成长稳定性</th>
+					<th ng-click="col='rank_score_in_growth_gmean';desc=!desc">1.4成长得分（平均）</th>
+					<th ng-click="col='in_growth_gmean';desc=!desc" ng-if="myVar" >成长（平均）</th>
+
+					<th ng-click="col='total_score';desc=!desc">2.行业比较总得分</th>
+					<th ng-click="col='rank_score_pe';desc=!desc">2.1估值得分</th>
+					<th ng-click="col='pe';desc=!desc" ng-if="myVar" >估值</th>
+					<th ng-click="col='rank_score_rankS';desc=!desc">2.2估值历史分位得分</th>
+					<th ng-click="col='rankS';desc=!desc" ng-if="myVar">估值历史分位</th>
+					<th ng-click="col='rank_score_good';desc=!desc">2.3赚钱得分</th>
+					<th ng-click="col='jqjzcsyl';desc=!desc" ng-if="myVar" >赚钱</th>
+					<th ng-click="col='rank_score_growth';desc=!desc">2.4成长得分</th>
+					<th ng-click="col='kfjlrtbzz';desc=!desc" ng-if="myVar" >成长</th>
+					<th ng-click="col='rank_score_leverage';desc=!desc">2.5财务安全得分</th>
+					<th ng-click="col='ldbl';desc=!desc" ng-if="myVar" >财务安全</th>
+					<th ng-click="col='rank_score_zzczzy';desc=!desc">2.6运营效率得分</th>
+					<th ng-click="col='zzczzy';desc=!desc" ng-if="myVar" >运营效率</th>
+					<th ng-click="col='rank_score_jyxjlyysr';desc=!desc">2.7现金流得分</th>
+					<th ng-click="col='jyxjlyysr';desc=!desc" ng-if="myVar">现金流</th>
+
+				  </tr>
+				</thead>
+				<tbody>
+				  <tr ng-repeat="d in data|orderBy:col:desc">
+					<td ng-bind="$index+1"></td>
+					<td ><a ng-href="/finance/detail/{{d.code}}" target="_blank">{{d.name}}({{d.code}})</a></td>
+					<td><a ng-click='query(d.industry)' href="javascript: void(0);">{{d.industry}}</a></td>
+
+					<td ng-bind="d.final_total_score|number:0"></td>
+					<td ng-bind="d.power_score|number:0"></td>
+
+					<td ng-bind="d.rank_score_roe_stable|number:0" ></td>
+					<td ng-bind="d.roe_stable|number:2" ng-if="myVar"></td>
+					<td ng-bind="d.rank_score_roe_gmean|number:0"></td>
+					<td ng-bind="d.roe_gmean|number:2" ng-if="myVar"></td>
+					<td ng-bind="d.rank_score_in_growth_stable|number:0"></td>
+					<td ng-bind="d.in_growth_stable|number:2" ng-if="myVar" ></td>
+					<td ng-bind="d.rank_score_in_growth_gmean|number:0"></td>
+					<td ng-bind="d.in_growth_gmean|number:2" ng-if="myVar" ></td>
+
+					<td ng-bind="d.total_score|number:0"></td>
+
+					<td ng-bind="d.rank_score_pe|number:0"></td>
+					<td ng-bind="d.pe|number:2" ng-if="myVar"></td>
+					<td ng-bind="d.rank_score_rankS|number:0"></td>
+					<td ng-bind="d.rankS|number:2" ng-if="myVar" ></td>
+					<td ng-bind="d.rank_score_good|number:0"></td>
+					<td ng-bind="d.jqjzcsyl|number:2" ng-if="myVar" ></td>
+					<td ng-bind="d.rank_score_growth|number:0"></td>
+					<td ng-bind="d.kfjlrtbzz|number:2" ng-if="myVar"></td>				
+					<td ng-bind="d.rank_score_leverage|number:0"></td>
+					<td ng-bind="d.ldbl|number:2" ng-if="myVar" ></td>
+					<td ng-bind="d.rank_score_zzczzy|number:0"></td>
+					<td ng-bind="d.zzczzy|number:2" ng-if="myVar" ></td>
+					<td ng-bind="d.rank_score_jyxjlyysr|number:0"></td>
+					<td ng-bind="d.jyxjlyysr|number:2" ng-if="myVar"></td>
+				  </tr>
+				</tbody>
+			  </table>
+		</div>
+	
+	</div>
+
+	<script>
+		var app = angular.module('myApp', []);
+		// app.controller('orderByCtrl', function($scope) {
+		// $scope.col = 'name';//默认按name列排序
+		// $scope.desc = 0;//默认排序条件升序
+		// $scope.data = [{
+		// 	name: 'name 1',
+		// 	gender: 'male',
+		// 	age: 26,
+		// 	score: 70
+		// }, {
+		// 	name: 'name 2',
+		// 	gender: 'female',
+		// 	age: 24,
+		// 	score: 84
+		// }, {
+		// 	name: 'name 3',
+		// 	gender: 'male',
+		// 	age: 20,
+		// 	score: 76
+		// }, {
+		// 	name: 'name 4',
+		// 	gender: 'female',
+		// 	age: 22,
+		// 	score: 64
+		// }];
+		// })
+		
+		app.controller('myCtrl', function($scope, $http) {
+			 $http({
+					method : 'GET',
+					url : "/finance/industryList"
+				}).then(function successCallback(response) {
+					$scope.commonWords = response.data;
+				}, function errorCallback(response) {
+					// 请求失败执行代码
+					$scope.result2 = response.data;
+				}); 
+
+			// $scope.commonWords = [ "300", "对冲基金", 市盈率" ]
+
+		$scope.col = 'final_total_score';//默认按name列排序
+		$scope.desc = 1;//默认排序条件升序
+		// $scope.data = [{
+		// 	name: 'name 1',
+		// 	gender: 'male',
+		// 	age: 26,
+		// 	score: 70
+		// }, {
+		// 	name: 'name 2',
+		// 	gender: 'female',
+		// 	age: 24,
+		// 	score: 84
+		// }, {
+		// 	name: 'name 3',
+		// 	gender: 'male',
+		// 	age: 20,
+		// 	score: 76
+		// }, {
+		// 	name: 'name 4',
+		// 	gender: 'female',
+		// 	age: 22,
+		// 	score: 64
+		// }];		
+
+			$scope.search = function() {
+				
+				$scope.hint = "正在搜索请稍后..."
+				$http({
+					method : 'GET',
+					url : "/finance/stockscore/" + $scope.name 
+				}).then(function successCallback(response) {
+					// $scope.hint = response.data;
+					$scope.hint = "搜索已完成。"
+					$scope.data = response.data;
+				}, function errorCallback(response) {
+					// 请求失败执行代码
+					$scope.hint = "搜索错误，请确认查询条件";
+				});
+			};
+	
+
+
+			$scope.query = function(key) {
+				$scope.hint = "正在搜索请稍后..."
+				$http({
+					method : 'GET',
+					url : "/finance/indstockscore/" + key
+				}).then(function successCallback(response) {
+					$scope.hint = "搜索已完成。"
+					$scope.data = response.data;
+				}, function errorCallback(response) {
+					$scope.hint = "搜索错误，请确认查询条件";
+				});
+			};
+
+		
+		});
+	</script>
+
+</body>
+</html>
